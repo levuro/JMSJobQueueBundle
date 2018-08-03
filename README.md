@@ -1,5 +1,8 @@
-JMSJobQueueBundle [![Build Status](https://secure.travis-ci.org/schmittjoh/JMSJobQueueBundle.png?branch=master)](http://travis-ci.org/schmittjoh/JMSJobQueueBundle)
+JMSJobQueueBundle [![Build Status](https://secure.travis-ci.org/ddereszewski/JMSJobQueueBundle.png?branch=master)](http://travis-ci.org/ddereszewski/JMSJobQueueBundle)
 =================
+
+This library supports PHP7.2
+
 
 Documentation: 
 [Resources/doc](http://jmsyst.com/bundles/JMSJobQueueBundle)
