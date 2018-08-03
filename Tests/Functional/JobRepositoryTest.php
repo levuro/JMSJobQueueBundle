@@ -227,10 +227,11 @@ class JobRepositoryTest extends BaseTestCase
             ->with('jms_job_queue.job_state_change', new StateChangeEvent($a, 'failed'));
         $this->dispatcher->expects($this->at(1))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new \PHPUnit_Framework_Constraint_Not($this->equalTo(new StateChangeEvent($a, 'failed'))));
+            ->with('jms_job_queue.job_state_change', new \PHPUnit\Framework\Constraint\LogicalNot($this->equalTo(new StateChangeEvent($a, 'failed'))));
+
         $this->dispatcher->expects($this->at(2))
             ->method('dispatch')
-            ->with('jms_job_queue.job_state_change', new \PHPUnit_Framework_Constraint_Not($this->equalTo(new StateChangeEvent($a, 'failed'))));
+            ->with('jms_job_queue.job_state_change', new \PHPUnit\Framework\Constraint\LogicalNot($this->equalTo(new StateChangeEvent($a, 'failed'))));
 
         $this->assertCount(0, $a->getRetryJobs());
         $this->repo->closeJob($a, 'failed');
@@ -289,7 +290,7 @@ class JobRepositoryTest extends BaseTestCase
         $this->createClient();
         $this->importDatabaseSchema();
 
-        $this->dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+        $this->dispatcher = $this->createMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
         $this->em = self::$kernel->getContainer()->get('doctrine')->getManagerForClass('JMSJobQueueBundle:Job');
         $this->repo = $this->em->getRepository('JMSJobQueueBundle:Job');
         $this->repo->setDispatcher($this->dispatcher);

@@ -6,6 +6,7 @@ use JMS\JobQueueBundle\Entity\Job;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 class RunCommandTest extends BaseTestCase
 {
@@ -14,7 +15,7 @@ class RunCommandTest extends BaseTestCase
 
     public function testRun()
     {
-        $a = new Job('a');
+        $a = new Job('a1');
         $b = new Job('b', array('foo'));
         $b->addDependency($a);
         $this->em->persist($a);
@@ -22,12 +23,13 @@ class RunCommandTest extends BaseTestCase
         $this->em->flush();
 
         $output = $this->doRun(array('--max-runtime' => 5, '--worker-name' => 'test'));
-        $expectedOutput = "Started Job(id = 1, command = \"a\").\n"
-                         ."Job(id = 1, command = \"a\") finished with exit code 1.\n";
+        $expectedOutput = "Started Job(id = 1, command = \"a1\").\n"
+                         ."Job(id = 1, command = \"a1\") finished with exit code 1.\n";
         $this->assertEquals($expectedOutput, $output);
+
         $this->assertEquals('failed', $a->getState());
         $this->assertEquals('', $a->getOutput());
-        $this->assertContains('Command "a" is not defined.', $a->getErrorOutput());
+        $this->assertContains('Command "a1" is not defined.', $a->getErrorOutput());
         $this->assertEquals('canceled', $b->getState());
     }
 

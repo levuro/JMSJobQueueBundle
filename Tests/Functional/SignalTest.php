@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManager;
 use JMS\JobQueueBundle\Entity\Job;
 use Symfony\Component\Process\Process;
 
-class SignalTest extends \PHPUnit_Framework_TestCase
+class SignalTest extends \PHPUnit\Framework\TestCase
 {
     public function testControlledExit()
     {

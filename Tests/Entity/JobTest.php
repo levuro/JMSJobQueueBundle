@@ -20,7 +20,7 @@ namespace JMS\JobQueueBundle\Tests\Entity;
 
 use JMS\JobQueueBundle\Entity\Job;
 
-class JobTest extends \PHPUnit_Framework_TestCase
+class JobTest extends \PHPUnit\Framework\TestCase
 {
     public function testConstruct()
     {
