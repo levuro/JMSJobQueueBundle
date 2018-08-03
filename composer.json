@@ -32,14 +32,13 @@
         "symfony/twig-bundle": "*",
         "symfony/form": "*",
         "symfony/validator": "*",
-        "phpunit/phpunit": "^5.2",
+        "phpunit/phpunit": "^6.2",
         "symfony/intl": "*"
     },
     "suggest": {
         "sensio/framework-extra-bundle": "Required when using the webinterface.",
         "symfony/twig-bundle": "Required when using the webinterface."
     },
-    "minimum-stability": "dev",
     "autoload": {
         "psr-0": { "JMS\\JobQueueBundle": "" }
     },
