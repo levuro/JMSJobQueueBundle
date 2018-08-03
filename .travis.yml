@@ -9,13 +9,10 @@ cache:
 matrix:
   fast_finish: true
   include:
-    - php: 7.0
     - php: 7.1
     - php: 7.2
       env: DEPENDENCIES=beta
-    - php: hhvm
-  allow_failures:
-    - php: hhvm  
+
 
 before_script:
   - composer self-update
@@ -24,7 +21,7 @@ before_script:
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then composer require --dev "phpunit/phpunit=4.8.*"; fi
   - if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then composer require --dev "phpunit/phpunit=5.7.*"; fi
 
-install: composer install --dev
+install: composer install
 
 script: phpunit --coverage-clover clover
 
