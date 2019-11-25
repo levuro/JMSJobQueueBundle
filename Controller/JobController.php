@@ -44,8 +44,7 @@ class JobController
 
         if ( ! empty($jobFilter->command)) {
             $qb->andWhere($qb->expr()->orX(
-                $qb->expr()->like('j.command', ':commandQuery'),
-                $qb->expr()->like('j.args', ':commandQuery')
+                $qb->expr()->like('j.command', ':commandQuery')
             ))
                 ->setParameter('commandQuery', '%'.$jobFilter->command.'%');
         }
