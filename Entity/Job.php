@@ -164,10 +164,10 @@ class Job
     /** @ORM\Column(type = "smallint", nullable = true, options = {"unsigned": true}) */
     private $runtime;
 
-    /** @ORM\Column(type = "integer", name="memoryUsage", nullable = true, options = {"unsigned": true}) */
+    /** @ORM\Column(type = "bigint", name="memoryUsage", nullable = true, options = {"unsigned": true}) */
     private $memoryUsage;
 
-    /** @ORM\Column(type = "integer", name="memoryUsageReal", nullable = true, options = {"unsigned": true}) */
+    /** @ORM\Column(type = "bigint", name="memoryUsageReal", nullable = true, options = {"unsigned": true}) */
     private $memoryUsageReal;
 
     /**
