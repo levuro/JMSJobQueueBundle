@@ -451,14 +451,22 @@ class Job
     {
         $this->errorOutput .= $output;
     }
-
+    
     public function setOutput($output)
     {
+        $maxBytes = 2097152; // 2MB
+        if(mb_strlen($output, '8bit') > $maxBytes){
+            $output = mb_strcut($output, 0 ,$maxBytes, "UTF-8");
+        }
         $this->output = $output;
     }
 
     public function setErrorOutput($output)
     {
+        $maxBytes =  2097152; // 2MB
+        if(mb_strlen($output, '8bit') > $maxBytes){
+            $output = mb_strcut($output, 0 ,$maxBytes, "UTF-8");
+        }
         $this->errorOutput = $output;
     }
 
