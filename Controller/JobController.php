@@ -36,7 +36,8 @@ class JobController extends Controller
         if ( ! empty($jobFilter->command)) {
             $qb->andWhere($qb->expr()->orX(
                 $qb->expr()->like('j.command', ':commandQuery'),
-                $qb->expr()->like('j.args', ':commandQuery')
+                // Doesn't work for postgres
+                //$qb->expr()->like('j.args', ':commandQuery')
             ))
                 ->setParameter('commandQuery', '%'.$jobFilter->command.'%');
         }
