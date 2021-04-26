@@ -446,21 +446,25 @@ class Job
 
     public function addOutput($output)
     {
+        $output = iconv(mb_detect_encoding($output), 'UTF-8', $output);
         $this->output .= $output;
     }
 
     public function addErrorOutput($output)
     {
+        $output = iconv(mb_detect_encoding($output), 'UTF-8', $output);
         $this->errorOutput .= $output;
     }
 
     public function setOutput($output)
     {
+        $output = iconv(mb_detect_encoding($output), 'UTF-8', $output);
         $this->output = $output;
     }
 
     public function setErrorOutput($output)
     {
+        $output = iconv(mb_detect_encoding($output), 'UTF-8', $output);
         $this->errorOutput = $output;
     }
 
