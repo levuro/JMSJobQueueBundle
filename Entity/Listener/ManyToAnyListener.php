@@ -3,6 +3,7 @@
 namespace JMS\JobQueueBundle\Entity\Listener;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use JMS\JobQueueBundle\Entity\Job;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Provides many-to-any association support for jobs.
@@ -19,7 +20,7 @@ class ManyToAnyListener
     private $registry;
     private $ref;
 
-    public function __construct(\Doctrine\Common\Persistence\ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         $this->registry = $registry;
         $this->ref = new \ReflectionProperty('JMS\JobQueueBundle\Entity\Job', 'relatedEntities');
