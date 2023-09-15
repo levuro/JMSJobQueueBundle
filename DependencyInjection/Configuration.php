@@ -32,10 +32,10 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritDoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('jms_job_queue');
+        $treeBuilder = new TreeBuilder('jms_job_queue');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
