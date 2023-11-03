@@ -27,8 +27,8 @@ use Symfony\Component\Debug\Exception\FlattenException;
 /**
  * @ORM\Entity
  * @ORM\Table(name = "jms_jobs", indexes = {
- *     @ORM\Index("cmd_search_index", columns = {"command"}),
- *     @ORM\Index("sorting_index", columns = {"state", "priority", "id"}),
+ *     @ORM\Index(name="cmd_search_index", columns = {"command"}),
+ *     @ORM\Index(name="sorting_index", columns = {"state", "priority", "id"}),
  * })
  * @ORM\ChangeTrackingPolicy("DEFERRED_EXPLICIT")
  *
@@ -164,10 +164,10 @@ class Job
     /** @ORM\Column(type = "smallint", nullable = true, options = {"unsigned": true}) */
     private $runtime;
 
-    /** @ORM\Column(type = "integer", name="memoryUsage", nullable = true, options = {"unsigned": true}) */
+    /** @ORM\Column(type = "bigint", name="memoryUsage", nullable = true, options = {"unsigned": true}) */
     private $memoryUsage;
 
-    /** @ORM\Column(type = "integer", name="memoryUsageReal", nullable = true, options = {"unsigned": true}) */
+    /** @ORM\Column(type = "bigint", name="memoryUsageReal", nullable = true, options = {"unsigned": true}) */
     private $memoryUsageReal;
 
     /**
