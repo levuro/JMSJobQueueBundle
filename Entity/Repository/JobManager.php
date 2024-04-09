@@ -21,6 +21,7 @@ namespace JMS\JobQueueBundle\Entity\Repository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\Parameter;
@@ -111,9 +112,12 @@ class JobManager
         return null;
     }
 
-    private function acquireLock($workerName, Job $job)
+    /**
+     * @throws Exception
+     */
+    private function acquireLock($workerName, Job $job): bool
     {
-        $affectedRows = $this->getJobManager()->getConnection()->executeUpdate(
+        $affectedRows = $this->getJobManager()->getConnection()->executeStatement(
             "UPDATE jms_jobs SET workerName = :worker WHERE id = :id AND workerName IS NULL",
             array(
                 'worker' => $workerName,
@@ -269,7 +273,7 @@ class JobManager
 
         if (null !== $this->dispatcher && ($job->isRetryJob() || 0 === count($job->getRetryJobs()))) {
             $event = new StateChangeEvent($job, $finalState);
-            $this->dispatcher->dispatch('jms_job_queue.job_state_change', $event);
+            $this->dispatcher->dispatch($event, 'jms_job_queue.job_state_change');
             $finalState = $event->getNewState();
         }
 
