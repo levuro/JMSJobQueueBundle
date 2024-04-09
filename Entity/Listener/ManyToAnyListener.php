@@ -32,7 +32,7 @@ class ManyToAnyListener
         $this->ref->setAccessible(true);
     }
 
-    public function postLoad(LifecycleEventArgs $event)
+    public function postLoad(LifecycleEventArgs $event): void
     {
         $entity = $event->getObject();
         if ( ! $entity instanceof Job) {
@@ -45,7 +45,7 @@ class ManyToAnyListener
     /**
      * @throws Exception
      */
-    public function preRemove(LifecycleEventArgs $event)
+    public function preRemove(LifecycleEventArgs $event): void
     {
         $entity = $event->getObject();
         if ( ! $entity instanceof Job) {
@@ -61,7 +61,7 @@ class ManyToAnyListener
     /**
      * @throws Exception
      */
-    public function postPersist(LifecycleEventArgs $event)
+    public function postPersist(LifecycleEventArgs $event): void
     {
         $entity = $event->getObject();
         if ( ! $entity instanceof Job) {
@@ -90,7 +90,7 @@ class ManyToAnyListener
      * @throws SchemaException
      * @throws MappingException
      */
-    public function postGenerateSchema(GenerateSchemaEventArgs $event)
+    public function postGenerateSchema(GenerateSchemaEventArgs $event): void
     {
         $schema = $event->getSchema();
 

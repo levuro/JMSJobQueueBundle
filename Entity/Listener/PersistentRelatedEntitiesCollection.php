@@ -135,7 +135,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $offset
      * @return bool
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         $this->initialize();
 
@@ -318,7 +318,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param mixed $key
      * @param mixed $value
      */
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         throw new \LogicException('set() is not supported.');
     }
@@ -367,7 +367,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param Closure $func
      * @return Collection
      */
-    public function map(Closure $func)
+    public function map(Closure $func): Collection
     {
         $this->initialize();
 
@@ -381,7 +381,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param Closure $p The predicate used for filtering.
      * @return Collection A collection with the results of the filter operation.
      */
-    public function filter(Closure $p)
+    public function filter(Closure $p): Collection
     {
         $this->initialize();
 
@@ -475,7 +475,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
      * @param  Criteria $criteria
      * @return Collection
      */
-    public function matching(Criteria $criteria)
+    public function matching(Criteria $criteria): Collection
     {
         $this->initialize();
 
@@ -507,7 +507,7 @@ class PersistentRelatedEntitiesCollection implements Collection, Selectable
         return new ArrayCollection($filtered);
     }
 
-    private function initialize()
+    private function initialize(): void
     {
         if (null !== $this->entities) {
             return;
