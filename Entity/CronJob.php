@@ -31,7 +31,7 @@ class CronJob
         return $this->command;
     }
 
-    public function getLastRunAt()
+    public function getLastRunAt(): \DateTime
     {
         return $this->lastRunAt;
     }
