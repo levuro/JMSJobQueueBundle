@@ -14,5 +14,5 @@ interface RetryScheduler
      *
      * @return \DateTime
      */
-    public function scheduleNextRetry(Job $originalJob);
+    public function scheduleNextRetry(Job $originalJob): \DateTime;
 }

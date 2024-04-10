@@ -3,19 +3,14 @@
 namespace JMS\JobQueueBundle\Command;
 
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\Exception\NotSupported;
-use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
 use JMS\JobQueueBundle\Console\CronCommand;
 use JMS\JobQueueBundle\Cron\CommandScheduler;
 use JMS\JobQueueBundle\Cron\JobScheduler;
 use JMS\JobQueueBundle\Entity\CronJob;
-use JMS\JobQueueBundle\Entity\Job;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,20 +20,20 @@ class ScheduleCommand extends Command
 {
     protected static $defaultName = 'jms-job-queue:schedule';
 
-    private $registry;
-    private $schedulers;
-    private $cronCommands;
+    private EntityManagerInterface $entityManager;
+    private iterable $schedulers;
+    private iterable $cronCommands;
 
-    public function __construct(ManagerRegistry $managerRegistry, iterable $schedulers, iterable $cronCommands)
+    public function __construct(EntityManagerInterface $entityManager, iterable $schedulers, iterable $cronCommands)
     {
         parent::__construct();
 
-        $this->registry = $managerRegistry;
+        $this->entityManager = $entityManager;
         $this->schedulers = $schedulers;
         $this->cronCommands = $cronCommands;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Schedules jobs at defined intervals')
@@ -47,6 +42,9 @@ class ScheduleCommand extends Command
         ;
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $maxRuntime = $input->getOption('max-runtime');
@@ -69,7 +67,7 @@ class ScheduleCommand extends Command
             return 0;
         }
 
-        $jobsLastRunAt = $this->populateJobsLastRunAt($this->registry->getManagerForClass(CronJob::class), $jobSchedulers);
+        $jobsLastRunAt = $this->populateJobsLastRunAt($jobSchedulers);
 
         $startedAt = time();
         while (true) {
@@ -95,7 +93,7 @@ class ScheduleCommand extends Command
      * @param JobScheduler[] $jobSchedulers
      * @param \DateTime[] $jobsLastRunAt
      */
-    private function scheduleJobs(OutputInterface $output, array $jobSchedulers, array &$jobsLastRunAt)
+    private function scheduleJobs(OutputInterface $output, array $jobSchedulers, array &$jobsLastRunAt): void
     {
         foreach ($jobSchedulers as $name => $scheduler) {
             $lastRunAt = $jobsLastRunAt[$name];
@@ -110,9 +108,8 @@ class ScheduleCommand extends Command
             if ($success) {
                 $output->writeln('Scheduling command '.$name);
                 $job = $scheduler->createJob($name, $lastRunAt);
-                $em = $this->registry->getManagerForClass(Job::class);
-                $em->persist($job);
-                $em->flush($job);
+                $this->entityManager->persist($job);
+                $this->entityManager->flush($job);
             }
         }
     }
@@ -124,12 +121,10 @@ class ScheduleCommand extends Command
      */
     private function acquireLock($commandName, \DateTime $lastRunAt): array
     {
-        /** @var EntityManager $em */
-        $em = $this->registry->getManagerForClass(CronJob::class);
-        $con = $em->getConnection();
+        $con = $this->entityManager->getConnection();
 
         $now = new \DateTime();
-        $affectedRows = $con->executeStatement(
+        $affectedRows = $con->executeQuery(
             "UPDATE jms_cron_jobs SET lastRunAt = :now WHERE command = :command AND lastRunAt = :lastRunAt",
             array(
                 'now' => $now,
@@ -177,16 +172,11 @@ class ScheduleCommand extends Command
         return $schedulers;
     }
 
-    /**
-     * @throws OptimisticLockException
-     * @throws NotSupported
-     * @throws ORMException
-     */
-    private function populateJobsLastRunAt(EntityManager $em, array $jobSchedulers): array
+    private function populateJobsLastRunAt(array $jobSchedulers): array
     {
         $jobsLastRunAt = array();
 
-        foreach ($em->getRepository(CronJob::class)->findAll() as $job) {
+        foreach ($this->entityManager->getRepository(CronJob::class)->findAll() as $job) {
             /** @var CronJob $job */
             $jobsLastRunAt[$job->getCommand()] = $job->getLastRunAt();
         }
@@ -194,11 +184,11 @@ class ScheduleCommand extends Command
         foreach (array_keys($jobSchedulers) as $name) {
             if ( ! isset($jobsLastRunAt[$name])) {
                 $job = new CronJob($name);
-                $em->persist($job);
+                $this->entityManager->persist($job);
                 $jobsLastRunAt[$name] = $job->getLastRunAt();
             }
         }
-        $em->flush();
+        $this->entityManager->flush();
 
         return $jobsLastRunAt;
     }

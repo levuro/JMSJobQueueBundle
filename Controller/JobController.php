@@ -2,13 +2,12 @@
 
 namespace JMS\JobQueueBundle\Controller;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Util\ClassUtils;
-use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Exception;
+use Doctrine\ORM\EntityManagerInterface;
 use JMS\JobQueueBundle\Entity\Job;
 use JMS\JobQueueBundle\Entity\Repository\JobManager;
 use JMS\JobQueueBundle\View\JobFilter;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,15 +20,15 @@ class JobController extends AbstractController
 {
     private ContainerBagInterface $containerBag;
     private JobManager $jobManager;
-    private ManagerRegistry $managerRegistry;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
-        ManagerRegistry $managerRegistry,
+        EntityManagerInterface $entityManager,
         ContainerBagInterface $containerBag,
         JobManager $jobManager
     )
     {
-        $this->managerRegistry = $managerRegistry;
+        $this->entityManager = $entityManager;
         $this->containerBag = $containerBag;
         $this->jobManager = $jobManager;
     }
@@ -41,7 +40,7 @@ class JobController extends AbstractController
     {
         $jobFilter = JobFilter::fromRequest($request);
 
-        $qb = $this->getEm()->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
         $qb->select('j')->from('JMSJobQueueBundle:Job', 'j')
             ->where($qb->expr()->isNull('j.originalJob'))
             ->orderBy('j.id', 'desc');
@@ -85,6 +84,7 @@ class JobController extends AbstractController
 
     /**
      * @Route("/{id}", name = "jms_jobs_details")
+     * @throws Exception
      */
     public function detailsAction(Job $job): Response
     {
@@ -93,7 +93,7 @@ class JobController extends AbstractController
             $class = ClassUtils::getClass($entity);
             $relatedEntities[] = array(
                 'class' => $class,
-                'id' => json_encode($this->managerRegistry->getManagerForClass($class)->getClassMetadata($class)->getIdentifierValues($entity)),
+                'id' => json_encode($this->entityManager->getClassMetadata($class)->getIdentifierValues($entity)),
                 'raw' => $entity,
             );
         }
@@ -101,7 +101,7 @@ class JobController extends AbstractController
         $statisticData = $statisticOptions = array();
         if ($this->containerBag->get('jms_job_queue.statistics')) {
             $dataPerCharacteristic = array();
-            foreach ($this->getEm()->getConnection()->query("SELECT * FROM jms_job_statistics WHERE job_id = ".$job->getId()) as $row) {
+            foreach ($this->entityManager->getConnection()->executeQuery("SELECT * FROM jms_job_statistics WHERE job_id = ".$job->getId()) as $row) {
                 $dataPerCharacteristic[$row['characteristic']][] = array(
                     // hack because postgresql lower-cases all column names.
                     array_key_exists('createdAt', $row) ? $row['createdAt'] : $row['createdat'],
@@ -161,16 +161,11 @@ class JobController extends AbstractController
 
         $retryJob = clone $job;
 
-        $this->getEm()->persist($retryJob);
-        $this->getEm()->flush();
+        $this->entityManager->persist($retryJob);
+        $this->entityManager->flush();
 
         $url = $this->generateUrl('jms_jobs_details', array('id' => $retryJob->getId()));
 
         return new RedirectResponse($url, 201);
-    }
-
-    private function getEm(): EntityManager
-    {
-        return $this->managerRegistry->getManagerForClass(Job::class);
     }
 }
