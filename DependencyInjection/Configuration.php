@@ -18,6 +18,7 @@
 
 namespace JMS\JobQueueBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -34,15 +35,33 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('jms_job_queue');
-        $treeBuilder->getRootNode()
-            ->children()->booleanNode('statistics')->defaultTrue()->end()
-            ->children()->arrayNode('queue_options_defaults')->addDefaultsIfNotSet()
-            ->children()->scalarNode('max_concurrent_jobs')->end()
-            ->end()
-            ->children()->arrayNode('queue_options')->useAttributeAsKey('queue')->arrayPrototype()
-            ->children()->scalarNode('max_concurrent_jobs')->end()
-            ->end();
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode
+            ->children()
+            ->booleanNode('statistics')->defaultTrue()->end();
+
+        $defaultOptionsNode = $rootNode
+            ->children()
+            ->arrayNode('queue_options_defaults')
+            ->addDefaultsIfNotSet();
+        $this->addQueueOptions($defaultOptionsNode);
+
+        $queueOptionsNode = $rootNode
+            ->children()
+            ->arrayNode('queue_options')
+            ->useAttributeAsKey('queue')
+            ->arrayPrototype();
+        $this->addQueueOptions($queueOptionsNode);
 
         return $treeBuilder;
+    }
+
+    private function addQueueOptions(ArrayNodeDefinition $def): void
+    {
+        $def
+            ->children()
+            ->scalarNode('max_concurrent_jobs')
+            ->end();
     }
 }
