@@ -134,7 +134,7 @@ class JobManager
      */
     private function acquireLock($workerName, Job $job): bool
     {
-        $affectedRows = $this->entityManager->getConnection()->executeQuery(
+        $affectedRows = $this->entityManager->getConnection()->executeStatement(
             "UPDATE jms_jobs SET workerName = :worker WHERE id = :id AND workerName IS NULL",
             array(
                 'worker' => $workerName,
