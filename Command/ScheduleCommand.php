@@ -2,6 +2,12 @@
 
 namespace JMS\JobQueueBundle\Command;
 
+use Doctrine\DBAL\Exception;
+use Doctrine\ORM\Exception\NotSupported;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
@@ -111,14 +117,19 @@ class ScheduleCommand extends Command
         }
     }
 
-    private function acquireLock($commandName, \DateTime $lastRunAt)
+    /**
+     * @throws NonUniqueResultException
+     * @throws Exception
+     * @throws NoResultException
+     */
+    private function acquireLock($commandName, \DateTime $lastRunAt): array
     {
         /** @var EntityManager $em */
         $em = $this->registry->getManagerForClass(CronJob::class);
         $con = $em->getConnection();
 
         $now = new \DateTime();
-        $affectedRows = $con->executeUpdate(
+        $affectedRows = $con->executeStatement(
             "UPDATE jms_cron_jobs SET lastRunAt = :now WHERE command = :command AND lastRunAt = :lastRunAt",
             array(
                 'now' => $now,
@@ -144,7 +155,7 @@ class ScheduleCommand extends Command
         return array(false, $cronJob->getLastRunAt());
     }
 
-    private function populateJobSchedulers()
+    private function populateJobSchedulers(): array
     {
         $schedulers = [];
         foreach ($this->schedulers as $scheduler) {
@@ -166,7 +177,12 @@ class ScheduleCommand extends Command
         return $schedulers;
     }
 
-    private function populateJobsLastRunAt(EntityManager $em, array $jobSchedulers)
+    /**
+     * @throws OptimisticLockException
+     * @throws NotSupported
+     * @throws ORMException
+     */
+    private function populateJobsLastRunAt(EntityManager $em, array $jobSchedulers): array
     {
         $jobsLastRunAt = array();
 
