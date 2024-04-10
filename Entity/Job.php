@@ -178,17 +178,17 @@ class Job
      */
     private $relatedEntities;
 
-    public static function create($command, array $args = array(), $confirmed = true, $queue = self::DEFAULT_QUEUE, $priority = self::PRIORITY_DEFAULT)
+    public static function create($command, array $args = array(), $confirmed = true, $queue = self::DEFAULT_QUEUE, $priority = self::PRIORITY_DEFAULT): Job
     {
         return new self($command, $args, $confirmed, $queue, $priority);
     }
 
-    public static function isNonSuccessfulFinalState($state)
+    public static function isNonSuccessfulFinalState($state): bool
     {
         return in_array($state, array(self::STATE_CANCELED, self::STATE_FAILED, self::STATE_INCOMPLETE, self::STATE_TERMINATED), true);
     }
 
-    public static function getStates()
+    public static function getStates(): array
     {
         return array(
             self::STATE_NEW,
@@ -267,12 +267,12 @@ class Job
         return $this->priority * -1;
     }
 
-    public function isInFinalState()
+    public function isInFinalState(): bool
     {
         return ! $this->isNew() && ! $this->isPending() && ! $this->isRunning();
     }
 
-    public function isStartable()
+    public function isStartable(): bool
     {
         foreach ($this->dependencies as $dep) {
             if ($dep->getState() !== self::STATE_FINISHED) {
@@ -372,7 +372,7 @@ class Job
         return $this->relatedEntities;
     }
 
-    public function isClosedNonSuccessful()
+    public function isClosedNonSuccessful(): bool
     {
         return self::isNonSuccessfulFinalState($this->state);
     }
