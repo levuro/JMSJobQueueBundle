@@ -142,7 +142,7 @@ class ScheduleCommand extends Command
         }
 
         /** @var CronJob $cronJob */
-        $cronJob = $em->createQuery("SELECT j FROM ".CronJob::class." j WHERE j.command = :command")
+        $cronJob = $this->entityManager->createQuery("SELECT j FROM ".CronJob::class." j WHERE j.command = :command")
             ->setParameter('command', $commandName)
             ->setHint(Query::HINT_REFRESH, true)
             ->getSingleResult();
