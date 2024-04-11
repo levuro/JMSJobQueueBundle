@@ -157,7 +157,7 @@ class CleanUpCommand extends Command
             }
         }
 
-        $this->entityManager->getConnection()->executeQuery("DELETE FROM jms_job_dependencies WHERE dest_job_id = :id", array('id' => $job->getId()));
+        $this->entityManager->getConnection()->executeStatement("DELETE FROM jms_job_dependencies WHERE dest_job_id = :id", array('id' => $job->getId()));
     }
 
     private function findExpiredJobs(InputInterface $input): \Generator

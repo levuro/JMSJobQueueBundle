@@ -83,7 +83,7 @@ class Application extends BaseApplication
             return;
         }
 
-        $this->getConnection()->executeQuery(
+        $this->getConnection()->executeStatement(
             "UPDATE jms_jobs SET stackTrace = :trace, memoryUsage = :memoryUsage, memoryUsageReal = :memoryUsageReal WHERE id = :id",
             array(
                 'id' => $jobId,
